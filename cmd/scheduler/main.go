@@ -77,6 +77,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to parse the config file: %v", err)
 	}
+	for _, instance := range project.Instances {
+		for _, db := range instance.Databases {
+			if db.Schedule == "0 0 * * *" || db.Schedule == "42 0 * * *" {
+				dbPath := fmt.Sprintf("projects/%s/instances/%s/databases/%s", project.Name, instance.Name, db.Name)
+				log.Fatalf("Please avoid scheduling %s at exactly midnight to avoid overload", dbPath)
+			}
+		}
+	}
 
 	ctx := context.Background()
 	client, err := scheduler.NewCloudSchedulerClient(ctx)
